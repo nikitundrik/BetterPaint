@@ -5,6 +5,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    InitializeMagick("~/");
     painted = false;
     ui->setupUi(this);
     connect(ui->actionSave, &QAction::triggered, [=]() {
@@ -55,10 +56,12 @@ void MainWindow::saveDialog() {
 }
 
 void MainWindow::saveImage(string filename) {
-    InitializeMagick("~/");
-    Image savedImg("512x512", "white");
+    Image savedImg("513x513", "white");
+    int colorsPos = 0;
     for (QPoint i : points) {
-        savedImg.pixelColor(i.x(), i.y(), Color("red"));
+        QColor currentColor = colors.at(colorsPos);
+        savedImg.pixelColor(i.x(), i.y(), ColorRGB(currentColor.red() / 255, currentColor.green() / 255, currentColor.blue() / 255));
+        colorsPos++;
     }
     savedImg.write(filename);
 }
@@ -79,9 +82,7 @@ void MainWindow::loadImage(string filename) {
             ColorRGB currentPix = loadedImg.pixelColor(x, y);
             colors.push_back(QColor(currentPix.red() * 255, currentPix.green() * 255, currentPix.blue() * 255));
             points.push_back(QPoint(x, y));
-            cout << currentPix.red() << endl;
         }
-        cout << "it has" << endl;
     }
     painted = true;
     repaint();
